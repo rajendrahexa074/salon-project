@@ -1,0 +1,25 @@
+### GET request
+GET http://localhost:3000/
+
+### POST request to insert user
+POST http://localhost:3000/add-user
+Content-Type: application/json
+
+{
+  "name": "Rajesh",
+  "email": "raman@mail.com",
+  "password": "12345678"
+}
+
+### GET request
+GET http://localhost:3000/Get-Users
+
+
+### POST request to insert user
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "email": "raman@mail.com",
+  "password": "12345678"
+}

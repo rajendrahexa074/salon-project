@@ -1,0 +1,31 @@
+.enhanced-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, #4b6cb7, #182848);
+  padding: 20px 30px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-bottom: 3px solid #ffce54;
+}
+
+.portal-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portal-title i {
+  font-size: 2rem;
+  color: #ffce54;
+}
+
+.user-menu {
+  font-size: 1.2rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+}

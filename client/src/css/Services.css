@@ -1,0 +1,11 @@
+.service-card {
+    transition: transform 0.2s;
+  }
+  .service-card:hover {
+    transform: scale(1.03);
+  }
+  .card-price {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  

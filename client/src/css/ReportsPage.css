@@ -1,0 +1,72 @@
+.salon-reports {
+    padding: 30px;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f9f9f9;
+  }
+  
+  .salon-reports h2 {
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    color: #333;
+  }
+  
+  .report-cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+  
+  .report-card {
+    background-color: #fff;
+    flex: 1 1 200px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .report-card h4 {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 10px;
+  }
+  
+  .report-card p {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .details-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .report-box {
+    flex: 1 1 300px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  .report-box h4 {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    color: #444;
+  }
+  
+  .report-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .report-box li {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+  }
+  
