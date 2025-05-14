@@ -2,13 +2,20 @@ const User = require('../models/users.model.js');
 
 exports.createUser = async (userData) => {
     try {
+        const existingUser = await User.findOne({ email: userData.email });
+        if (existingUser) {
+            return { success: false, status: 409, message: 'User already exists' };
+        }
+
         const user = new User(userData);
         await user.save();
-        return user;
+
+        return { success: true, user };
     } catch (error) {
-        throw new Error('Error adding user: ' + error.message);
+        return { success: false, status: 500, message: 'Error adding user: ' + error.message };
     }
-}
+};
+
 
 exports.getUsers = async () => {
     try {
@@ -22,16 +29,14 @@ exports.getUsers = async () => {
 }
 
 exports.login = async (email, password) => {
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            throw new Error('User not found');
-        }
-        if (user.password !== password) {
-            throw new Error('Invalid password');
-        }
-        return user;
-    } catch (error) {
-        throw new Error('Error logging in: ' + error.message);
+    const user = await User.findOne({ email });
+    if (!user) {
+        return { success: false, status: 404, message: 'User not found' };
     }
-}
+
+    if (user.password !== password) {
+        return { success: false, status: 401, message: 'Invalid password' };
+    }
+
+    return { success: true, user };
+};

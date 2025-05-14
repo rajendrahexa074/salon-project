@@ -1,59 +1,60 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ServiceCard from '../components/ServiceCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCogs, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../../../../components/Modal'; // You’ll create this
 import ServiceForm from './ServiceForm';
 import { showConfirmDialog } from '../../../../utils/SwalUtills';
+import { useDispatch } from 'react-redux';
+import { deleteFacilityApi, getFacilitieList, manageFacility } from '../../../../store/slice/FacilitySlice';
+import { toast } from 'react-toastify';
+import NoData from '../../../../components/NoData';
+import { useLoading } from '../../../../context/LoadingContext';
 function Services() {
-  const [services, setServices] = useState([
-    {
-      id: 1,
-      name: 'Hair Cut',
-      description: 'Professional hair cutting and styling.',
-      price: 30,
-      images: ["https://chandigarhsalon.com/application/uploads/img/SkinCare.jpg",
-        "https://chandigarhsalon.com/application/uploads/img/hairCut.jpeg",
-        "https://chandigarhsalon.com/application/uploads/img/MakeUp.png",
-        "https://chandigarhsalon.com/application/uploads/img/FeetNail.jpg"
-      ]
-    },
-    {
-      id: 2,
-      name: 'Facial',
-      description: 'Relaxing and refreshing facial treatment.',
-      price: 40,
-      images: ["https://chandigarhsalon.com/application/uploads/img/SkinCare.jpg",
-        "https://chandigarhsalon.com/application/uploads/img/hairCut.jpeg",
-        "https://chandigarhsalon.com/application/uploads/img/MakeUp.png",
-        "https://chandigarhsalon.com/application/uploads/img/FeetNail.jpg"
-      ]
-    },
-    {
-      id: 3,
-      name: 'Manicure',
-      description: 'Nail trimming, cleaning, and polish.',
-      price: 25,
-      images: ["https://chandigarhsalon.com/application/uploads/img/SkinCare.jpg",
-        "https://chandigarhsalon.com/application/uploads/img/hairCut.jpeg",
-        "https://chandigarhsalon.com/application/uploads/img/MakeUp.png",
-        "https://chandigarhsalon.com/application/uploads/img/FeetNail.jpg"
-      ]
-    }
-  ]);
+  const { setLoading } = useLoading();
+  const dispatch = useDispatch();
+  const [services, setServices] = useState([]);
 
   const [editingService, setEditingService] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
 
-  const handleSave = (service) => {
-    if (editingService) {
-      setServices((prev) =>
-        prev.map((s) => (s.id === service.id ? service : s))
-      );
-    } else {
-      setServices([...services, { ...service, id: Date.now() }]);
+  useEffect(() => {
+    fetchFacilities();
+  }, [dispatch]);
+
+
+  const fetchFacilities = async () => {
+    try {
+      setLoading(true);
+      const response = await dispatch(getFacilitieList()).unwrap();
+      if (response && response.data) {
+        setServices(response.data);
+      }
+      setLoading(false);
+    } catch (error) {
+      toast.error(error || 'Something went wrong!');
+      setLoading(false);
     }
+  };
+
+
+
+
+  const upsertService = async (service) => {
+    try {
+      if (editingService) {
+        service['id'] = service._id;
+      }
+
+      const result = await dispatch(manageFacility(service)).unwrap();
+      toast.success(result.message);
+
+      await fetchFacilities();
+    } catch (error) {
+      toast.error(error?.message || 'Something went wrong!');
+    }
+
     setShowModal(false);
     setEditingService(null);
   };
@@ -71,7 +72,13 @@ function Services() {
     });
 
     if (result.isConfirmed) {
-      setServices(services.filter((s) => s.id !== id));
+      try {
+        const response = await dispatch(deleteFacilityApi(id)).unwrap();
+        toast.success(response.message);
+        fetchFacilities();
+      } catch (error) {
+        toast.error(error?.message || 'Error deleting facility');
+      }
     }
   };
 
@@ -85,26 +92,40 @@ function Services() {
         </button>
       </div>
 
-      <div className="row">
-        {services.map((service) => (
-          <div className="col-md-4 mb-4" key={service.id}>
-            <ServiceCard
-              {...service}
-              isAdmin
-              onEdit={() => handleEdit(service)}
-              onDelete={() => handleDelete(service.id)}
-            />
+      {services.length ? (
+        <>
+
+
+
+          <div className="row">
+            {services.map((service) => (
+              <div className="col-md-4 mb-4" key={service._id}>
+                <ServiceCard
+                  {...service}
+                  isAdmin
+                  onEdit={() => handleEdit(service)}
+                  onDelete={() => handleDelete(service._id)}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+
+
+
+      ) : (
+        <NoData message='No Facilities Found!!' image='/no-record-found.jpg' />
+      )}
+
+
 
       {showModal && (
         <Modal
           title={editingService ? 'Edit Service' : 'Add Service'}
-          onClose={() => setShowModal(false)}
+          onClose={() => { setEditingService(null); setShowModal(false); }}
         >
           <ServiceForm
-            onSubmit={editingService ? handleEdit : handleSave}
+            onSubmit={upsertService}
             initialData={editingService}
           />
         </Modal>

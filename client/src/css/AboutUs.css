@@ -1,0 +1,53 @@
+/* src/pages/AboutUs.css */
+
+.about-container {
+  font-family: "Segoe UI", sans-serif;
+  padding: 2rem;
+  background: linear-gradient(to right, #fff6f6, #ffe9e9);
+  color: #333;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInDown 1.2s ease-out;
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  color: #d6336c;
+}
+
+.about-hero p {
+  font-size: 1.2rem;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+.about-content h2 {
+  color: #b12a5b;
+  margin-top: 2rem;
+}
+
+.about-content p,
+.about-content ul {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.about-content ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+}
+
+/* Simple keyframe for fade down */
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

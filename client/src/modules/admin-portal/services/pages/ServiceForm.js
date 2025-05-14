@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { uploadApi } from '../../../../store/slice/FileUploadSlice';
+import { toast } from 'react-toastify';
 
 function ServiceForm({ onSubmit, initialData }) {
+    const API_URL = process.env.REACT_APP_API_URL;
+    const dispatch = useDispatch();
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -12,7 +17,7 @@ function ServiceForm({ onSubmit, initialData }) {
         if (initialData) {
             setFormData(initialData);
         } else {
-            setFormData({ name: '', description: '', price: '', images: '' });
+            setFormData({ name: '', description: '', price: '', images: [] });
         }
     }, [initialData]);
 
@@ -21,13 +26,47 @@ function ServiceForm({ onSubmit, initialData }) {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    // inside your React component
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSubmit({
-            ...formData, price: parseFloat(formData.price),
-            images: formData.images.map((file) => (URL.createObjectURL(file)))
-        });
+
+        try {
+            let uploadedFiles = [];
+            const filesToUpload = formData.images.filter(x => x instanceof File);
+
+            if (filesToUpload.length > 0) {
+                uploadedFiles = await fileUpload(filesToUpload);
+            }
+            const existingImages = formData.images.filter(x => !(x instanceof File));
+            const allImages = [...existingImages, ...uploadedFiles];
+
+            onSubmit({
+                ...formData,
+                price: parseFloat(formData.price),
+                images: allImages,
+            });
+        } catch (error) {
+            console.error('Error in handleSubmit:', error);
+        }
     };
+
+    const fileUpload = async (files) => {
+        try {
+            const data = new FormData();
+            files.forEach(file => {
+                data.append('files', file);
+            });
+
+            const response = await dispatch(uploadApi(data)).unwrap();
+            return response.files;
+        } catch (error) {
+            console.error('Upload error:', error);
+            throw error;
+        }
+    };
+
+
 
 
     return (
@@ -67,7 +106,7 @@ function ServiceForm({ onSubmit, initialData }) {
             </div>
 
             <div className="mb-3">
-                <label className="form-label">Image URLs (comma-separated)</label>
+                <label className="form-label">Select Images</label>
                 <input
                     type="file"
                     name="images"
@@ -75,9 +114,32 @@ function ServiceForm({ onSubmit, initialData }) {
                     multiple
                     className="form-control"
                     onChange={(e) =>
-                        setFormData({ ...formData, images: Array.from(e.target.files) })
+                        setFormData({
+                            ...formData,
+                            images: [...formData.images, ...Array.from(e.target.files)]
+                        })
+
                     }
                 />
+
+
+                {/* Preview Images */}
+                <div className="mt-3 d-flex flex-wrap gap-2">
+                    {formData.images.map((image, index) => {
+
+                        const imageURL = image instanceof File ? URL.createObjectURL(image) : `${API_URL}/static/${image.storedName}`;
+
+                        return (
+                            <div key={index} style={{ width: 100, height: 100, border: '1px solid #ccc', padding: 4 }}>
+                                <img
+                                    src={imageURL}
+                                    alt={`preview-${index}`}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
             <button type="submit" className="btn btn-primary">

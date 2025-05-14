@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import '../../../css/Signup.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useLoading } from '../../../context/LoadingContext';
 import { login } from '../../../store/slice/AuthSlice';
 import ReusableNavLink from '../../../components/ReusableNavLink';
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
-    const { isLoading, isAuthenticated, error } = useSelector((state) => state.auth);
-    console.log('isauth',isAuthenticated)
+    const { user, isAuthenticated } = useSelector(state => state.auth);
     const { setLoading } = useLoading();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -20,10 +20,13 @@ const LoginPage = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/admin/dashboard');
+            if (user?.role === 'customer') {
+                navigate('/customer/home');
+            } else {
+                navigate('/admin/dashboard');
+            }
         }
-    }, [isAuthenticated])
-
+    }, [isAuthenticated, navigate])
 
     const handleChange = (e) => {
         setFormData((prev) => ({
@@ -35,7 +38,11 @@ const LoginPage = () => {
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
-        await dispatch(login(formData));
+        await dispatch(login(formData)).unwrap().then(() => {
+            toast.success('Login Successful');
+        }).catch((error) => {
+            toast.error('Login Failed: ' + (error || 'Something went wrong'));
+        });
         setLoading(false);
     };
 
@@ -73,7 +80,7 @@ const LoginPage = () => {
                 color="text-green-600"
                 hoverColor="hover:text-green-800"
                 underline={true}
-                
+
             />
         </div>
     );

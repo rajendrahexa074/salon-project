@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addEditFacility, getFacilities } from "../../services/FacilityService";
+import { addEditFacility, deleteFacility, getFacilities } from "../../services/FacilityService";
 
 export const getFacilitieList = createAsyncThunk('facility/getFacilities', async (_, thunkAPI) => {
     try {
@@ -14,10 +14,20 @@ export const manageFacility = createAsyncThunk('facility/addEditFacility', async
         return await addEditFacility(payload);
 
     } catch (error) {
-        thunkAPI.rejectWithValue(error.response.data.message);
+        return thunkAPI.rejectWithValue(error.response.data.message);
 
     }
 });
+
+
+export const deleteFacilityApi = createAsyncThunk('facility/deleteFacility', async (id, thunkAPI) => {
+    try {
+        return await deleteFacility(id);
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response.data.message);
+
+    }
+})
 
 const facilitySlice = createSlice({
     name: 'facility',
@@ -52,6 +62,22 @@ const facilitySlice = createSlice({
             })
 
             .addCase(manageFacility.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+
+            })
+
+            .addCase(deleteFacilityApi.pending, (state, action) => {
+                state.isLoading = true;
+            })
+
+            .addCase(deleteFacilityApi.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.data = action.payload;
+
+            })
+
+            .addCase(deleteFacilityApi.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
 

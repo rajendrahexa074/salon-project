@@ -4,27 +4,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signup } from '../../../store/slice/AuthSlice';
 import { useNavigate } from 'react-router-dom';
 import { useLoading } from '../../../context/LoadingContext';
-
+import ReusableNavLink from '../../../components/ReusableNavLink';
+import { toast } from 'react-toastify';
 const Signup = () => {
-    const { isLoading, isAuthenticated, error } = useSelector((state) => state.auth);
-    const {setLoading}=useLoading();
+    const { setLoading } = useLoading();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
+        role: 'customer'
     });
-
-    useEffect(()=>{
-setLoading(true)
-    },[])
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('login');
-        }
-    }, [isAuthenticated, navigate])
-
 
     const handleChange = (e) => {
         setFormData((prev) => ({
@@ -35,7 +26,15 @@ setLoading(true)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await dispatch(signup(formData))
+        setLoading(true);
+        try {
+            await dispatch(signup(formData)).unwrap();
+            toast.success('Signup Successful');
+            navigate('/customer/home');
+        } catch (error) {
+            toast.error('Signup Failed: ' + (error || 'Something went wrong'));
+        }
+        setLoading(false);
     };
 
     return (
@@ -74,6 +73,15 @@ setLoading(true)
 
                 <button type="submit" className="signup-button">Sign Up</button>
             </form>
+
+            <ReusableNavLink
+                to="/login"
+                text="Log In"
+                color="text-green-600"
+                hoverColor="hover:text-green-800"
+                underline={true}
+
+            />
         </div>
     );
 };
